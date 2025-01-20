@@ -4,7 +4,7 @@ from pyrogram import Client, filters
 from bot import Bot
 from config import ADMINS
 from helper_func import encode, get_message_id
-
+import asyncio 
 
 @Bot.on_message(filters.private & filters.user(ADMINS) & filters.command('custom_batch'))
 async def custom_batch(client: Client, message: Message):
@@ -24,7 +24,7 @@ async def custom_batch(client: Client, message: Message):
         ])
     )
 
-    @Bot.on_callback_query(filters.regex("add_message"))
+    @client.on_callback_query(filters.regex("add_message"))
     async def add_message_handler(client: Client, callback_query: CallbackQuery):
         nonlocal sent_message
         await callback_query.message.delete()
@@ -42,7 +42,7 @@ async def custom_batch(client: Client, message: Message):
             ])
         )
 
-    @Bot.on_callback_query(filters.regex("generate_link"))
+    @client.on_callback_query(filters.regex("generate_link"))
     async def generate_link_handler(client: Client, callback_query: CallbackQuery):
         nonlocal sent_message, is_cancel
         await sent_message.delete()
@@ -57,7 +57,7 @@ async def custom_batch(client: Client, message: Message):
         ])
         await callback_query.message.reply_text(f"Here is your sharable link:\n\n{link}", reply_markup=reply_markup)
 
-    @Bot.on_callback_query(filters.regex("cancel"))
+    @client.on_callback_query(filters.regex("cancel"))
     async def cancel_handler(client: Client, callback_query: CallbackQuery):
         nonlocal sent_message, is_cancel
         is_cancel = True

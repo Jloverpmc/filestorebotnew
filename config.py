@@ -10,7 +10,7 @@ API_ID = int(os.environ.get("API_ID", "18799477"))
 API_HASH = os.environ.get("API_HASH", "305cfa73e8b06daa97573809532034e5")
 
 
-OWNER_ID = int(os.environ.get("OWNER_ID", "5781922761 1957296068"))
+OWNER_ID = int(os.environ.get("OWNER_ID", "5781922761,1957296068"))
 DB_URL = os.environ.get("DB_URL", "mongodb+srv://jloverpmc:OpyVDcmfekfH5oCm@cluster0.p7col.mongodb.net/?retryWrites=true&w=majority")
 DB_NAME = os.environ.get("DB_NAME", "filesharingbotnew")
 JOIN_REQ_DB = os.environ.get("JOIN_REQ_DB", DB_URL)
@@ -30,8 +30,8 @@ TG_BOT_WORKERS = int(os.environ.get("TG_BOT_WORKERS", "4"))
 
 
 try:
-    ADMINS=[5781922761 1957296068]
-    for x in (os.environ.get("ADMINS", "5781922761 1957296068").split()):
+    ADMINS=[5781922761,1957296068]
+    for x in (os.environ.get("ADMINS", "5781922761,1957296068").split()):
         ADMINS.append(int(x))
 except ValueError:
         raise Exception("Your Admins list does not contain valid integers.")
@@ -69,7 +69,7 @@ FORCE_MSG = os.environ.get("FORCE_SUB_MESSAGE", "Hello {mention}\n\n<b>You Need 
 
 
 ADMINS.append(OWNER_ID)
-ADMINS.append(5781922761 1957296068)
+ADMINS.append(5781922761,1957296068)
 
 LOG_FILE_NAME = "filesharingbot.txt"
 

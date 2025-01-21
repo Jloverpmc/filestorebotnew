@@ -5,9 +5,34 @@ from bot import Bot
 from config import ADMINS
 from helper_func import encode
 import asyncio
+from config import ADMINS, DB_URL
+from pymongo import MongoClient
+import random
+import string
+import asyncio
+
+# Initialize MongoDB Client
+mongo_client = MongoClient(DB_URL)
+db = mongo_client["custom_batch_bot"]
+collection = db["batches"]
 
 # Shared dictionary to store session data for users
 session_data = {}
+
+
+def generate_random_id():
+    """Generate a random 8-character alphanumeric string."""
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+
+def save_batch_to_db(random_id, messages):
+    """Save batch messages to MongoDB."""
+    collection.insert_one({"_id": random_id, "messages": messages})
+
+def get_batch_from_db(random_id):
+    """Retrieve batch messages from MongoDB using the random ID."""
+    result = collection.find_one({"_id": random_id})
+    return result["messages"] if result else None
+
 
 @Bot.on_message(filters.private & filters.user(ADMINS) & filters.command('custom_batch'))
 async def custom_batch(client: Client, message: Message):
@@ -69,14 +94,9 @@ async def generate_link_handler(client: Client, callback_query: CallbackQuery):
 
     await session_data[user_id]["sent_message"].delete()
     messages = session_data[user_id]["messages"]
-
-    encoded_data = "custombatch-" + base64.urlsafe_b64encode("|".join(messages).encode()).decode()
-    if len(encoded_data) > 65536:
-        await callback_query.message.reply_text("❌ Too many messages! Please reduce the number.")
-        del session_data[user_id]
-        return
-
-    link = f"https://t.me/{client.username}?start={encoded_data}"
+    random_id = generate_random_id()
+    save_batch_to_db(random_id, messages)
+    link = f"https://t.me/{client.username}?start={random_id}"
     reply_markup = InlineKeyboardMarkup([
         [InlineKeyboardButton("🔗 Share Link", url=f"https://telegram.me/share/url?url={link}")]
     ])

@@ -7,6 +7,7 @@ from bot import Bot
 from config import ADMINS, FORCE_MSG, START_MSG, CUSTOM_CAPTION, DISABLE_CHANNEL_BUTTON, PROTECT_CONTENT, FILE_AUTO_DELETE
 from helper_func import subscribed, encode, decode, get_messages
 from database.database import add_user, del_user, full_userbase, present_user
+from .auto_custom_batch import get_batch_from_db
 
 madflixofficials = FILE_AUTO_DELETE
 jishudeveloper = madflixofficials
@@ -14,37 +15,27 @@ file_auto_delete = humanize.naturaldelta(jishudeveloper)
 
 
 @Bot.on_message(filters.command('start') & filters.private & subscribed)
+@Bot.on_message(filters.command('start') & filters.private)
 async def start_command(client: Client, message: Message):
-    id = message.from_user.id
-    if not await present_user(id):
+    user_id = message.from_user.id
+    if not await present_user(user_id):
         try:
-            await add_user(id)
+            await add_user(user_id)
         except:
             pass
-
     text = message.text
-
-    # Check if the 'start' command includes additional arguments
+    # Check if `/start` contains a random ID
     if len(text) > 7:
         try:
-            base64_string = text.split(" ", 1)[1]
-        except:
-            return
-        if base64_string.startswith("custombatch-"):
-            try:
-                encoded_messages = base64_string.split("-", 1)[1]
-                decoded_messages = base64.urlsafe_b64decode(encoded_messages).decode()
-                stored_messages = decoded_messages.split("|")  # Split messages
-            except:
-                await message.reply_text("Invalid custom batch link.")
-                return
-            for msg in stored_messages:
-                try:
+            random_id = text.split(" ", 1)[1]
+            messages = get_batch_from_db(random_id)
+            if messages:
+                for msg in messages:
                     await message.reply_text(msg)
-                except:
-                    pass
-            return
-        # Handle other types of start arguments (as in your existing code)
+            else:
+                pass
+        except:
+            await message.reply_text("An error occurred while processing your request.")
         try:
             base64_string = text.split(" ", 1)[1]
         except:

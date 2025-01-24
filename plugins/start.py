@@ -31,10 +31,27 @@ async def start_command(client: Client, message: Message):
             messages = get_batch_from_db(random_id)
             if messages:
                 for msg in messages:
-                    await message.reply_text(msg)
+                    if msg["type"] == "text":
+                        await message.reply_text(msg["content"])
+                    elif msg["type"] == "media":
+                        media_type = msg["media_type"]
+                        file_id = msg["file_id"]
+                        if media_type == "photo":
+                            await message.reply_photo(file_id)
+                        elif media_type == "video":
+                            await message.reply_video(file_id)
+                        elif media_type == "audio":
+                            await message.reply_audio(file_id)
+                        elif media_type == "document":
+                            await message.reply_document(file_id)
+                        elif media_type == "voice":
+                            await message.reply_voice(file_id)
+                        else:
+                            await message.reply_text("Unsupported media type.")
             else:
-                pass
-        except:
+                await message.reply_text("No messages found for this link.")
+        except Exception as e:
+            print(f"Error: {e}")  # Log the error for debugging
             await message.reply_text("An error occurred while processing your request.")
         try:
             base64_string = text.split(" ", 1)[1]

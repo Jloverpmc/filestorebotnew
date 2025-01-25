@@ -74,10 +74,11 @@ async def add_message_handler(client: Client, callback_query: CallbackQuery):
     if new_message.text:
         session_data[user_id]["messages"].append({"type": "text", "content": new_message.text.strip()})
     elif new_message.media:
+        media = getattr(new_message, new_message.media.value, None)
         session_data[user_id]["messages"].append({
             "type": "media",
-            "media_type": new_message.media,
-            "file_id": new_message[new_message.media].file_id
+            "media_type": new_message.media.value,
+            "file_id": media.file_id
         })
     else:
         await prompt.edit("Unsupported message type. Please send text or media.")
